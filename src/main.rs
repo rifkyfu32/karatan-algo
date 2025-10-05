@@ -55,8 +55,42 @@ fn binary_search<T: Ord + std::fmt::Display>(list: &[T], item: &T) -> Option<usi
     // Jika loop selesai tanpa menemukan item, berarti item tidak ada di dalam list.
     None
 }
+/*
+Menemukan indeks dari elemen terkecil dalam sebuah slice.
+Mengembalikan `None` jika slice kosong.
+ */
+fn find_smallest<T: Ord>(arr: &[T]) -> Option<usize> {
+    if arr.is_empty() {
+        return None;
+    }
+    let mut smallest_index = 0;
+    for i in 1..arr.len() {
+        // Jika elemen saat ini lebih kecil dari elemen terkecil yang sudah tercatat
+        if arr[i] < arr[smallest_index] {
+            smallest_index = i;
+        }
+    }
+    return Some(smallest_index);
+}
+/*
+Mengurutkan sebuah Vector menggunakan algoritma selection sort.
+Fungsi ini akan mengonsumsi vector asli dan mengembalikan vector baru yang sudah terurut.
+ */
+fn selection_sort<T: Ord>(mut arr: Vec<T>) -> Vec<T> {
+    // Membuat vector baru dengan kapasitas yang sama untuk efisiensi
+    let mut new_arr = Vec::with_capacity(arr.len());
+    // Ulangi selama vector asli masih memiliki elemen
+    while !arr.is_empty() {
+        // Temukan indeks elemen terkecil di sisa vector asli
+        let smallest_index = find_smallest(&arr).unwrap();
+        // Pindahkan elemen terkecil dari vector asli ke vector baru
+        new_arr.push(arr.remove(smallest_index));
+    }
+    new_arr
+}
+
 mod tests {
-    use crate::binary_search;
+    use crate::{binary_search, selection_sort};
 
     #[test]
     fn test_binary_search() {
@@ -88,5 +122,11 @@ mod tests {
             Some(index) => println!("Kata '{}' ditemukan pada indeks {}.", target_word, index),
             None => println!("Kata '{}' tidak ditemukan.", target_word),
         }
+    }
+    #[test]
+    fn test_selection_sort() {
+        let list=vec![3,5,2,4,1,7,9,6];
+        let sort_list=selection_sort(list);
+        println!("{:?}", sort_list);
     }
 }
