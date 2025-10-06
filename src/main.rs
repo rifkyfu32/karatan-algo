@@ -102,9 +102,21 @@ fn sum_recursive(arr: &[i32]) -> i32 {
         [head, tail @ ..] => head + sum_recursive(tail),
     }
 }
+fn sum_recursive_simple(arr: &[i32]) -> i32 {
+    if arr.is_empty() {
+        return 0;
+    } else {
+        let head = arr[0];
+        let tail = &arr[1..];
+        println!("{}", &arr.len());
+        println!("{:?}", &arr[1..]);
+        println!("{:?}", &arr[..arr.len()]);
+        return head + sum_recursive_simple(tail);
+    }
+}
 
 mod tests {
-    use crate::{binary_search, selection_sort, sum_recursive};
+    use crate::{binary_search, selection_sort, sum_recursive, sum_recursive_simple};
 
     #[test]
     fn test_binary_search() {
@@ -145,8 +157,14 @@ mod tests {
     }
     #[test]
     fn test_sum_recursive() {
-        let list=vec![3,2,5,7,2,5];
-        let sum=sum_recursive(&list);
-        println!("Jumlah dari {:?} adalah {}",list,sum);
+        let list = vec![3, 2, 5, 7, 2, 5];
+        let sum = sum_recursive(&list);
+        println!("Jumlah dari {:?} adalah {}", list, sum);
+    }
+    #[test]
+    fn test_sum_recursive_simple() {
+        let arr = vec![2, 3, 1, 2, 5, 4];
+        let sum = sum_recursive_simple(&arr);
+        println!("Jumlah dari {:?} adalah {}", arr, sum)
     }
 }
