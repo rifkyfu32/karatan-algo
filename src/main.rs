@@ -88,9 +88,23 @@ fn selection_sort<T: Ord>(mut arr: Vec<T>) -> Vec<T> {
     }
     new_arr
 }
+/// Menghitung jumlah total elemen dalam sebuah slice i32 secara rekursif.
+fn sum_recursive(arr: &[i32]) -> i32 {
+    match arr {
+        // Base Case: Jika slice kosong ([]), hasilnya adalah 0.
+        [] => 0,
+        /*
+        Recursive Case: Jika slice tidak kosong...
+        'head' akan berisi elemen pertama (misal: 1).
+        'tail' akan berisi sisa slice (misal: [2, 3, 4]).
+        '@ ..' adalah sintaks untuk "sisa dari slice".
+         */
+        [head, tail @ ..] => head + sum_recursive(tail),
+    }
+}
 
 mod tests {
-    use crate::{binary_search, selection_sort};
+    use crate::{binary_search, selection_sort, sum_recursive};
 
     #[test]
     fn test_binary_search() {
@@ -125,8 +139,14 @@ mod tests {
     }
     #[test]
     fn test_selection_sort() {
-        let list=vec![3,5,2,4,1,7,9,6];
-        let sort_list=selection_sort(list);
+        let list = vec![3, 5, 2, 4, 1, 7, 9, 6];
+        let sort_list = selection_sort(list);
         println!("{:?}", sort_list);
+    }
+    #[test]
+    fn test_sum_recursive() {
+        let list=vec![3,2,5,7,2,5];
+        let sum=sum_recursive(&list);
+        println!("Jumlah dari {:?} adalah {}",list,sum);
     }
 }
