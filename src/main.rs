@@ -168,11 +168,32 @@ fn quicksort_3way<T: Ord + Clone>(arr: &[T]) -> Vec<T> {
         return result;
     }
 }
+fn factorial(x: u64) -> u64 {
+    if x == 1 {
+        return 1;
+    }
+    x * factorial(x - 1)
+}
+fn multiplication_table(arr: &[i32]) -> Vec<Vec<i32>> {
+    let mut table = Vec::new();
+    for row in arr.iter() {
+        let mut current = Vec::new();
+        for col in arr.iter() {
+            current.push(row * col);
+        }
+        table.push(current);
+    }
+    table
+}
+fn multiplication_table_function(arr: &[i32]) -> Vec<Vec<i32>> {
+    arr.iter()
+        .map(|row| arr.iter().map(|col| row * col).collect())
+        .collect()
+}
 
 mod tests {
     use crate::{
-        binary_search, quicksort, quicksort_3way, selection_sort, sum_recursive,
-        sum_recursive_idiom, sum_recursive_simple,
+        binary_search, factorial, multiplication_table, multiplication_table_function, quicksort, quicksort_3way, selection_sort, sum_recursive, sum_recursive_idiom, sum_recursive_simple
     };
 
     #[test]
@@ -241,5 +262,31 @@ mod tests {
         let list = vec![2, 4, 1, 9, 4, 1, 5];
         let sort = quicksort_3way(&list);
         println!("{:?}", sort);
+    }
+    #[test]
+    fn test_factorial() {
+        let salesman_traveling = factorial(10) as f64;
+        let estimate = 10.0; // 10 operation per second
+        let days = 86_000.0;
+        let operation = salesman_traveling / estimate / days;
+        println!("salesman travelling = {}", salesman_traveling);
+        println!("operation = {} day", operation);
+        println!("big o notation O(n!)");
+    }
+    #[test]
+    fn test_multiplication_table() {
+        let list = vec![2, 3, 7, 8, 10];
+        let result = multiplication_table(&list);
+        for item in result {
+            println!("{:?}", item);
+        }
+    }
+    #[test]
+    fn test_multiplication_table_function() {
+        let list=vec![1,2,3,4,5];
+        let result=multiplication_table_function(&list);
+        for item in result {
+            println!("{:?}", item);
+        }
     }
 }
