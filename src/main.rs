@@ -114,9 +114,66 @@ fn sum_recursive_simple(arr: &[i32]) -> i32 {
         return head + sum_recursive_simple(tail);
     }
 }
+fn sum_recursive_idiom(arr: &[i32]) -> i32 {
+    //Jika arr.split_first() mengembalikan Some, bongkar isinya ke dalam variabel head dan tail
+    if let Some((head, tail)) = arr.split_first() {
+        return head + sum_recursive_idiom(tail);
+    } else {
+        return 0;
+    }
+}
+fn quicksort<T: Ord + Clone>(arr: &[T]) -> Vec<T> {
+    if arr.len() < 2 {
+        // Base Case: Array dengan 0 atau 1 elemen sudah pasti terurut.
+        return arr.to_vec();
+    } else {
+        // Recursive Case
+        // 1. Pilih pivot
+        let pivot = &arr[0];
+        //list comprehension
+        // 2. Buat sub-array 'less' (elemen yang lebih kecil atau sama dengan pivot).
+        let less: Vec<T> = arr[1..].iter().filter(|&x| x <= pivot).cloned().collect();
+        // 3. Buat sub-array 'greater' (elemen yang lebih besar atau sama dengan pivot).
+        let greater: Vec<T> = arr[1..].iter().filter(|&x| x >= pivot).cloned().collect();
+        let mut result = quicksort(&less);
+        result.push(pivot.clone());
+        result.extend(quicksort(&greater));
+        result
+    }
+}
+fn quicksort_3way<T: Ord + Clone>(arr: &[T]) -> Vec<T> {
+    if arr.len() < 2 {
+        return arr.to_vec();
+    } else {
+        let pivot = &arr[arr.len() / 2];
+        let less: Vec<T> = arr
+            .iter()
+            .filter(|&x| x.cmp(pivot) == Ordering::Less)
+            .cloned()
+            .collect();
+        let equal: Vec<T> = arr
+            .iter()
+            .filter(|&x| x.cmp(pivot) == Ordering::Equal)
+            .cloned()
+            .collect();
+        let greater: Vec<T> = arr
+            .iter()
+            .filter(|&x| x.cmp(pivot) == Ordering::Greater)
+            .cloned()
+            .collect();
+        let mut result = quicksort_3way(&less);
+        result.extend(equal);
+        result.extend(quicksort_3way(&greater));
+
+        return result;
+    }
+}
 
 mod tests {
-    use crate::{binary_search, selection_sort, sum_recursive, sum_recursive_simple};
+    use crate::{
+        binary_search, quicksort, quicksort_3way, selection_sort, sum_recursive,
+        sum_recursive_idiom, sum_recursive_simple,
+    };
 
     #[test]
     fn test_binary_search() {
@@ -166,5 +223,23 @@ mod tests {
         let arr = vec![2, 3, 1, 2, 5, 4];
         let sum = sum_recursive_simple(&arr);
         println!("Jumlah dari {:?} adalah {}", arr, sum)
+    }
+    #[test]
+    fn test_sum_recursive_idiom() {
+        let list = vec![2, 3, 4, 1];
+        let sum = sum_recursive_idiom(&list);
+        println!("Jumlah dari {:?} adalah {}", list, sum);
+    }
+    #[test]
+    fn test_quicksort() {
+        let list = vec![2, 3, 1, 6, 4, 5];
+        let sort = quicksort(&list);
+        println!("{:?}", sort);
+    }
+    #[test]
+    fn test_quicksort_3way() {
+        let list = vec![2, 4, 1, 9, 4, 1, 5];
+        let sort = quicksort_3way(&list);
+        println!("{:?}", sort);
     }
 }
