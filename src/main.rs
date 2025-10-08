@@ -1,4 +1,7 @@
-use std::cmp::Ordering;
+use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet, VecDeque},
+};
 
 fn main() {
     println!("Hello, world!");
@@ -190,10 +193,55 @@ fn multiplication_table_function(arr: &[i32]) -> Vec<Vec<i32>> {
         .map(|row| arr.iter().map(|col| row * col).collect())
         .collect()
 }
+fn is_seller(name: &str) -> bool {
+    name.ends_with('m')
+}
+fn breadth_first_search(graph: &HashMap<String, Vec<String>>, start_node: &str) -> bool {
+    // 1. Gunakan VecDeque sebagai antrian (queue),
+    // efisien untuk operasi pop_front (mengambil dari depan) dan push_back (menambah ke belakang) yang merupakan inti dari BFS
+    let mut search_queue = VecDeque::new();
+    // Inisialisasi antrian dengan tetangga dari titik awal.
+    if let Some(neighbors) = graph.get(start_node) {
+        for neighbor in neighbors {
+            search_queue.push_back(neighbor.clone());
+        }
+    }
+    // 2. Gunakan HashSet untuk melacak node yang sudah diperiksa.
+    // Ini jauh lebih efisien daripada list/vector untuk pengecekan.
+    let mut searched = HashSet::new();
+
+    // 3. Loop selama antrian tidak kosong.
+    while let Some(person) = search_queue.pop_front() {
+        // Hanya proses orang ini jika belum pernah diperiksa sebelumnya.
+        if !searched.contains(&person) {
+            // Cek apakah orang ini adalah penjual.
+            if is_seller(&person) {
+                println!("{} is seller. We found it!", person);
+                return true;
+            } else {
+                // Jika bukan, tambahkan semua tetangganya ke dalam antrian.
+                if let Some(neighbors) = graph.get(&person) {
+                    for neighbor in neighbors {
+                        search_queue.push_back(neighbor.clone());
+                    }
+                }
+                // Tandai orang ini sebagai sudah diperiksa.
+                searched.insert(person);
+            }
+        }
+    }
+    // Jika loop selesai dan tidak ada penjual yang ditemukan.
+    println!("Tidak ada penjual yang ditemukan.");
+    false
+}
 
 mod tests {
+    use std::collections::HashMap;
+
     use crate::{
-        binary_search, factorial, multiplication_table, multiplication_table_function, quicksort, quicksort_3way, selection_sort, sum_recursive, sum_recursive_idiom, sum_recursive_simple
+        binary_search, breadth_first_search, factorial, multiplication_table,
+        multiplication_table_function, quicksort, quicksort_3way, selection_sort, sum_recursive,
+        sum_recursive_idiom, sum_recursive_simple,
     };
 
     #[test]
@@ -283,10 +331,32 @@ mod tests {
     }
     #[test]
     fn test_multiplication_table_function() {
-        let list=vec![1,2,3,4,5];
-        let result=multiplication_table_function(&list);
+        let list = vec![1, 2, 3, 4, 5];
+        let result = multiplication_table_function(&list);
         for item in result {
             println!("{:?}", item);
         }
+    }
+    #[test]
+    fn test_breadth_first_search() {
+        let mut graph: HashMap<String, Vec<String>> = HashMap::new();
+        graph.insert(
+            "you".to_string(),
+            vec!["alice".to_string(), "bob".to_string(), "claire".to_string()],
+        );
+        graph.insert("alice".to_string(), vec!["peggy".to_string()]);
+        graph.insert(
+            "bob".to_string(),
+            vec!["anuj".to_string(), "peggy".to_string()],
+        );
+        graph.insert(
+            "claire".to_string(),
+            vec!["thomy".to_string(), "jhonny".to_string()],
+        );
+        graph.insert("peggy".to_string(), vec![]);
+        graph.insert("anuj".to_string(), vec![]);
+        graph.insert("thomy".to_string(), vec![]);
+        graph.insert("jhonny".to_string(), vec![]);
+        breadth_first_search(&graph, "you");
     }
 }
