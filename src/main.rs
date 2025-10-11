@@ -1,6 +1,7 @@
 use std::{
     cmp::Ordering,
     collections::{HashMap, HashSet, VecDeque},
+    fmt::{Debug, Display},
 };
 
 fn main() {
@@ -16,7 +17,7 @@ Melakukan pencarian biner pada sebuah slice yang sudah terurut.
  * `Some(usize)` - Jika item ditemukan, mengembalikan indeks dari item tersebut.
  * `None` - Jika item tidak ditemukan.
 */
-fn binary_search<T: Ord + std::fmt::Display>(list: &[T], item: &T) -> Option<usize> {
+fn binary_search<T: Ord + Display>(list: &[T], item: &T) -> Option<usize> {
     // Menentukan batas bawah (low) dan batas atas (high) dari area pencarian.
     let mut low = 0;
     let mut high = list.len();
@@ -62,7 +63,7 @@ fn binary_search<T: Ord + std::fmt::Display>(list: &[T], item: &T) -> Option<usi
 Menemukan indeks dari elemen terkecil dalam sebuah slice.
 Mengembalikan `None` jika slice kosong.
  */
-fn find_smallest<T: Ord>(arr: &[T]) -> Option<usize> {
+fn find_smallest<T: Ord + Display>(arr: &[T]) -> Option<usize> {
     if arr.is_empty() {
         return None;
     }
@@ -72,6 +73,7 @@ fn find_smallest<T: Ord>(arr: &[T]) -> Option<usize> {
         if arr[i] < arr[smallest_index] {
             smallest_index = i;
         }
+        println!("find smallest: {}", &arr[smallest_index]);
     }
     return Some(smallest_index);
 }
@@ -79,13 +81,15 @@ fn find_smallest<T: Ord>(arr: &[T]) -> Option<usize> {
 Mengurutkan sebuah Vector menggunakan algoritma selection sort.
 Fungsi ini akan mengonsumsi vector asli dan mengembalikan vector baru yang sudah terurut.
  */
-fn selection_sort<T: Ord>(mut arr: Vec<T>) -> Vec<T> {
+fn selection_sort<T: Ord + Debug + Display>(mut arr: Vec<T>) -> Vec<T> {
     // Membuat vector baru dengan kapasitas yang sama untuk efisiensi
     let mut new_arr = Vec::with_capacity(arr.len());
     // Ulangi selama vector asli masih memiliki elemen
     while !arr.is_empty() {
         // Temukan indeks elemen terkecil di sisa vector asli
+        println!("while: {:?}", &arr);
         let smallest_index = find_smallest(&arr).unwrap();
+        println!("smallest: {}", &arr[smallest_index]);
         // Pindahkan elemen terkecil dari vector asli ke vector baru
         new_arr.push(arr.remove(smallest_index));
     }
@@ -144,38 +148,47 @@ fn quicksort<T: Ord + Clone>(arr: &[T]) -> Vec<T> {
         result
     }
 }
-fn quicksort_3way<T: Ord + Clone>(arr: &[T]) -> Vec<T> {
+fn quicksort_3way<T: Ord + Clone + Debug + Display>(arr: &[T]) -> Vec<T> {
+    println!("array: {:?}", arr);
     if arr.len() < 2 {
+        println!("array lenght < 2 {:?}", arr);
         return arr.to_vec();
     } else {
         let pivot = &arr[arr.len() / 2];
+        println!("pivot: {}", pivot);
         let less: Vec<T> = arr
             .iter()
             .filter(|&x| x.cmp(pivot) == Ordering::Less)
             .cloned()
             .collect();
+        println!("less: {:?}", less);
         let equal: Vec<T> = arr
             .iter()
             .filter(|&x| x.cmp(pivot) == Ordering::Equal)
             .cloned()
             .collect();
+        println!("equal: {:?}", equal);
         let greater: Vec<T> = arr
             .iter()
             .filter(|&x| x.cmp(pivot) == Ordering::Greater)
             .cloned()
             .collect();
+        println!("greater: {:?}", greater);
         let mut result = quicksort_3way(&less);
         result.extend(equal);
         result.extend(quicksort_3way(&greater));
-
+        println!("result: {:?}", result);
         return result;
     }
 }
 fn factorial(x: u64) -> u64 {
+    println!("x: {}", x);
     if x == 1 {
         return 1;
     }
-    x * factorial(x - 1)
+    let result = x * factorial(x - 1);
+    println!("result: {} * factorial({}) = {}", x, x - 1, result);
+    result
 }
 fn multiplication_table(arr: &[i32]) -> Vec<Vec<i32>> {
     let mut table = Vec::new();
@@ -197,15 +210,18 @@ fn is_seller(name: &str) -> bool {
     name.ends_with('m')
 }
 fn breadth_first_search(graph: &HashMap<String, Vec<String>>, start_node: &str) -> bool {
+    println!("Graph: {:?}", graph);
     // 1. Gunakan VecDeque sebagai antrian (queue),
     // efisien untuk operasi pop_front (mengambil dari depan) dan push_back (menambah ke belakang) yang merupakan inti dari BFS
     let mut search_queue = VecDeque::new();
     // Inisialisasi antrian dengan tetangga dari titik awal.
     if let Some(neighbors) = graph.get(start_node) {
         for neighbor in neighbors {
+            println!("starting add person: {}", neighbor);
             search_queue.push_back(neighbor.clone());
         }
     }
+    println!("Search queue: {:?}", search_queue);
     // 2. Gunakan HashSet untuk melacak node yang sudah diperiksa.
     // Ini jauh lebih efisien daripada list/vector untuk pengecekan.
     let mut searched = HashSet::new();
@@ -215,20 +231,28 @@ fn breadth_first_search(graph: &HashMap<String, Vec<String>>, start_node: &str) 
         // Hanya proses orang ini jika belum pernah diperiksa sebelumnya.
         if !searched.contains(&person) {
             // Cek apakah orang ini adalah penjual.
-            if is_seller(&person) {
+            let is_seller = is_seller(&person);
+            println!("is {} is seller? {}", &person, is_seller);
+            if is_seller {
                 println!("{} is seller. We found it!", person);
                 return true;
             } else {
                 // Jika bukan, tambahkan semua tetangganya ke dalam antrian.
+                println!("because {} not seller, add next person", &person);
                 if let Some(neighbors) = graph.get(&person) {
                     for neighbor in neighbors {
+                        println!("new person: {}", neighbor);
                         search_queue.push_back(neighbor.clone());
                     }
                 }
                 // Tandai orang ini sebagai sudah diperiksa.
                 searched.insert(person);
             }
+        } else {
+            println!("Skip, because {} has been serached before.", &person);
         }
+        println!("Searched: {:?}", searched);
+        println!("Search queue: {:?}", search_queue);
     }
     // Jika loop selesai dan tidak ada penjual yang ditemukan.
     println!("Tidak ada penjual yang ditemukan.");
@@ -351,11 +375,11 @@ mod tests {
         );
         graph.insert(
             "claire".to_string(),
-            vec!["thomy".to_string(), "jhonny".to_string()],
+            vec!["thom".to_string(), "jhonny".to_string()],
         );
         graph.insert("peggy".to_string(), vec![]);
         graph.insert("anuj".to_string(), vec![]);
-        graph.insert("thomy".to_string(), vec![]);
+        graph.insert("thom".to_string(), vec![]);
         graph.insert("jhonny".to_string(), vec![]);
         breadth_first_search(&graph, "you");
     }
